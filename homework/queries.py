@@ -134,6 +134,34 @@ def reducer_query_5(sequence):
 # FROM tips
 # GROUP BY day;
 #
+def mapper_query_6(sequence):
+    """Mapper"""
+    result = []
+    for index, (_, row) in enumerate(sequence):
+        if index == 0:
+            continue
+        row_values = row.strip().split(",")
+        day = row_values[4]
+        tip = float(row_values[1])
+        result.append((day, (tip, 1)))
+    return result
+
+
+def reducer_query_6(sequence):
+    """Reducer"""
+    accumulator = dict()
+    for key, (tip, count) in sequence:
+        if key not in accumulator:
+            accumulator[key] = (0.0, 0)
+        sum_tip, sum_count = accumulator[key]
+        accumulator[key] = (sum_tip + tip, sum_count + count)
+
+    result = []
+    for key, (sum_tip, sum_count) in accumulator.items():
+        avg = sum_tip / sum_count
+        result.append((key, avg))
+
+    return result
 
 
 #
@@ -175,6 +203,13 @@ def run():
         reducer_fn=reducer_query_5,
         input_folder="files/input/",
         output_folder="files/query_5/",
+    )
+
+    run_mapreduce_job(
+        mapper_fn=mapper_query_6,
+        reducer_fn=reducer_query_6,
+        input_folder="files/input/",
+        output_folder="files/query_6/",
     )
 
 
